@@ -2,7 +2,6 @@ package controllers
 
 import (
 	"encoding/json"
-	"errors"
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
 	"math"
@@ -43,7 +42,8 @@ func GetNationalities(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		errors.New("Failed to encode response")
+		utils.BadRequest(w, "Failed to encode response", "Error")
+		return
 	}
 }
 
@@ -71,7 +71,8 @@ func GetNationalityById(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		errors.New("Failed to encode response")
+		utils.BadRequest(w, "Failed to encode response", "Error")
+		return
 	}
 }
 
@@ -117,7 +118,8 @@ func CreateNationality(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		errors.New("Failed to encode response!")
+		utils.BadRequest(w, "Failed to encode response", "Error")
+		return
 	}
 }
 
@@ -178,6 +180,7 @@ func UpdateNationality(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 	if err := json.NewEncoder(w).Encode(response); err != nil {
-		errors.New("Failed to encode response!")
+		utils.BadRequest(w, "Failed to encode response", "Error")
+		return
 	}
 }
