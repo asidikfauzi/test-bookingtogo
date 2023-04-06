@@ -47,6 +47,17 @@ func BadRequest(w http.ResponseWriter, message interface{}, status string) {
 	json.NewEncoder(w).Encode(errorResponse)
 }
 
+func NotFound(w http.ResponseWriter, message interface{}, status string) {
+	var errorResponse = models.ErrorResponse{
+		http.StatusNotFound,
+		message,
+		status,
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusBadRequest)
+	json.NewEncoder(w).Encode(errorResponse)
+}
+
 func InternalServerError(w http.ResponseWriter, message interface{}) {
 	var errorResponse = models.ErrorResponse{
 		http.StatusInternalServerError,
