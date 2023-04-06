@@ -50,3 +50,12 @@ func UpdateNationality(id int, putBody models.NationalityUpdate) (interface{}, e
 	err := config.DB.Model(&nationality).Where("nationality_id=?", id).Updates(&nationality).Error
 	return putBody, err
 }
+
+func DeleteNationality(id int) error {
+	var nationality models.Nationalities
+	result := config.DB.Delete(&nationality, id)
+	if result.Error != nil {
+		return result.Error
+	}
+	return nil
+}

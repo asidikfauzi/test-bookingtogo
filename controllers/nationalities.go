@@ -184,3 +184,32 @@ func UpdateNationality(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 }
+
+func DeleteNationality(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	strId := vars["id"]
+
+	id, err := strconv.Atoi(strId)
+
+	_, err = database.GetNationalityById(id)
+	if err != nil {
+		utils.NotFound(w, err.Error(), "Not Found")
+		return
+	}
+
+	if err := database.DeleteNationality(id); err != nil {
+		utils.InternalServerError(w, err.Error())
+		return
+	}
+
+	response := map[string]interface{}{
+		"Code":    http.StatusOK,
+		"Message": "Successfully delete nationality!",
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		utils.BadRequest(w, "Failed to encode response", "Error")
+		return
+	}
+}
