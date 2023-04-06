@@ -106,6 +106,7 @@ func CreateNationality(w http.ResponseWriter, r *http.Request) {
 	data, err := database.InsertNationality(postBody)
 	if err != nil {
 		utils.InternalServerError(w, err.Error())
+		return
 	}
 
 	response := models.Response{
@@ -118,5 +119,65 @@ func CreateNationality(w http.ResponseWriter, r *http.Request) {
 	if err := json.NewEncoder(w).Encode(response); err != nil {
 		errors.New("Failed to encode response!")
 	}
+}
 
+func UpdateNationality(w http.ResponseWriter, r *http.Request) {
+	var putBody models.NationalityUpdate
+	vars := mux.Vars(r)
+	strId := vars["id"]
+
+	id, err := strconv.Atoi(strId)
+
+	_, err = database.GetNationalityById(id)
+	if err != nil {
+		utils.NotFound(w, err.Error(), "Not Found")
+		return
+	}
+
+	if err != nil {
+		utils.BadRequest(w, "Failed to get id!", "Error")
+		return
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&putBody); err != nil {
+		utils.BadRequest(w, "Fail insert data", err.Error())
+		return
+	}
+
+	validate := validator.New()
+	if err := validate.Struct(putBody); err != nil {
+		utils.BadRequestErrorFieldEmpty(w, err)
+		return
+	}
+
+	checkName := config.DB.Where("nationality_name = ? AND nationality_id != ?",
+		putBody.NationalityName, id).Find(&nationalities)
+	if checkName.RowsAffected > 0 {
+		utils.BadRequest(w, "Nationality name already exists", "Error")
+		return
+	}
+
+	checkCode := config.DB.Where("nationality_code = ? AND nationality_id != ?",
+		putBody.NationalityCode, id).Find(&nationalities)
+	if checkCode.RowsAffected > 0 {
+		utils.BadRequest(w, "Nationality code already exists", "Error")
+		return
+	}
+
+	data, err := database.UpdateNationality(id, putBody)
+	if err != nil {
+		utils.InternalServerError(w, err.Error())
+		return
+	}
+
+	response := models.Response{
+		201,
+		"Successfully update nationality!",
+		data,
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	if err := json.NewEncoder(w).Encode(response); err != nil {
+		errors.New("Failed to encode response!")
+	}
 }

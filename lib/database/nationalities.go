@@ -10,7 +10,7 @@ func GetNationalities(offset, limit int) ([]models.Nationalities, int64, error) 
 	var nationalities []models.Nationalities
 	var totalCount int64
 
-	if err := config.DB.Offset(offset).Limit(limit).Find(&nationalities).Error; err != nil {
+	if err := config.DB.Order("nationality_name ASC").Offset(offset).Limit(limit).Find(&nationalities).Error; err != nil {
 		return nationalities, totalCount, err
 	}
 
@@ -32,10 +32,21 @@ func GetNationalityById(id int) (models.Nationalities, error) {
 }
 
 func InsertNationality(postBody models.NationalityPost) (interface{}, error) {
-	nationality := models.Nationalities{
-		NationalityName: postBody.NationalityName,
-		NationalityCode: postBody.NationalityCode,
-	}
+	var nationality models.Nationalities
+
+	nationality.NationalityName = postBody.NationalityName
+	nationality.NationalityCode = postBody.NationalityCode
+
 	err := config.DB.Create(&nationality).Error
 	return nationality, err
+}
+
+func UpdateNationality(id int, putBody models.NationalityUpdate) (interface{}, error) {
+	var nationality models.Nationalities
+
+	nationality.NationalityName = putBody.NationalityName
+	nationality.NationalityCode = putBody.NationalityCode
+
+	err := config.DB.Model(&nationality).Where("nationality_id=?", id).Updates(&nationality).Error
+	return putBody, err
 }
