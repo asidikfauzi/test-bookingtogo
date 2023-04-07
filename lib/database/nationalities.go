@@ -6,18 +6,27 @@ import (
 	"test-bookingtogo/models"
 )
 
-func GetNationalities(offset, limit int) ([]models.Nationalities, int64, error) {
+func GetNationalities(offset, limit int) ([]models.NationalityResponse, int64, error) {
 	var nationalities []models.Nationalities
 	var totalCount int64
 
 	if err := config.DB.Order("nationality_name ASC").Offset(offset).Limit(limit).Find(&nationalities).Error; err != nil {
-		return nationalities, totalCount, err
+		return nil, totalCount, err
 	}
 
 	if err := config.DB.Model(&nationalities).Count(&totalCount).Error; err != nil {
-		return nationalities, totalCount, err
+		return nil, totalCount, err
 	}
-	return nationalities, totalCount, nil
+
+	var response []models.NationalityResponse
+	for _, nationality := range nationalities {
+		response = append(response, models.NationalityResponse{
+			NationalityId:   nationality.NationalityId,
+			NationalityName: nationality.NationalityName,
+			NationalityCode: nationality.NationalityCode,
+		})
+	}
+	return response, totalCount, nil
 
 }
 
