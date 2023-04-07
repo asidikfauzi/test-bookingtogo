@@ -30,13 +30,13 @@ func GetNationalities(w http.ResponseWriter, r *http.Request) {
 	totalPage := int(math.Ceil(float64(totalData) / float64(limit)))
 
 	response := models.ResponseGetList{
-		200,
-		"Successfully get nationalities!",
-		data,
-		page,
-		limit,
-		totalPage,
-		totalData,
+		Code:       200,
+		Message:    "Successfully get nationalities!",
+		Data:       data,
+		Page:       page,
+		Limit:      limit,
+		TotalPage:  totalPage,
+		TotalCount: totalData,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
@@ -63,14 +63,14 @@ func GetNationalityById(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	response := models.Response{
-		200,
-		"Successfully get nationality by id!",
-		data,
+		Code:    200,
+		Message: "Successfully get nationality by id!",
+		Data:    data,
 	}
 
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(response); err != nil {
+	if errJson := json.NewEncoder(w).Encode(response); errJson != nil {
 		utils.BadRequest(w, "Failed to encode response", "Error")
 		return
 	}
@@ -111,9 +111,9 @@ func CreateNationality(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := models.Response{
-		201,
-		"Successfully add nationality!",
-		data,
+		Code:    201,
+		Message: "Successfully add nationality!",
+		Data:    data,
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
@@ -141,14 +141,14 @@ func UpdateNationality(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := json.NewDecoder(r.Body).Decode(&putBody); err != nil {
-		utils.BadRequest(w, "Fail insert data", err.Error())
+	if errJson := json.NewDecoder(r.Body).Decode(&putBody); errJson != nil {
+		utils.BadRequest(w, "Fail insert data", errJson.Error())
 		return
 	}
 
 	validate := validator.New()
-	if err := validate.Struct(putBody); err != nil {
-		utils.BadRequestErrorFieldEmpty(w, err)
+	if errValidate := validate.Struct(putBody); errValidate != nil {
+		utils.BadRequestErrorFieldEmpty(w, errValidate)
 		return
 	}
 
@@ -173,13 +173,13 @@ func UpdateNationality(w http.ResponseWriter, r *http.Request) {
 	}
 
 	response := models.Response{
-		201,
-		"Successfully update nationality!",
-		data,
+		Code:    201,
+		Message: "Successfully update nationality!",
+		Data:    data,
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(response); err != nil {
+	if errJson := json.NewEncoder(w).Encode(response); errJson != nil {
 		utils.BadRequest(w, "Failed to encode response", "Error")
 		return
 	}
@@ -208,7 +208,7 @@ func DeleteNationality(w http.ResponseWriter, r *http.Request) {
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	if err := json.NewEncoder(w).Encode(response); err != nil {
+	if errJson := json.NewEncoder(w).Encode(response); errJson != nil {
 		utils.BadRequest(w, "Failed to encode response", "Error")
 		return
 	}
