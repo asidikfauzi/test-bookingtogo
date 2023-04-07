@@ -7,18 +7,31 @@ import (
 	"time"
 )
 
-func GetCustomers(offset, limit int) ([]models.Customers, int64, error) {
+func GetCustomers(offset, limit int) ([]models.CustomersResponse, int64, error) {
 	var customers []models.Customers
 	var totalCount int64
 
-	if err := config.DB.Preload("Nationalities").Order("cst_name ASC").Offset(offset).Limit(limit).Find(&customers).Error; err != nil {
-		return customers, totalCount, err
+	if err := config.DB.Order("cst_name ASC").Offset(offset).Limit(limit).Find(&customers).Error; err != nil {
+		return nil, totalCount, err
 	}
 
 	if err := config.DB.Model(&customers).Count(&totalCount).Error; err != nil {
-		return customers, totalCount, err
+		return nil, totalCount, err
 	}
-	return customers, totalCount, nil
+
+	var response []models.CustomersResponse
+	for _, customer := range customers {
+		response = append(response, models.CustomersResponse{
+			CstId:         customer.CstId,
+			NationalityId: customer.CstId,
+			CstName:       customer.CstName,
+			CstPhoneNum:   customer.CstPhoneNum,
+			CstDOB:        customer.CstDOB,
+			CstEmail:      customer.CstEmail,
+		})
+	}
+
+	return response, totalCount, nil
 
 }
 
@@ -26,7 +39,7 @@ func GetCustomerById(id int) (models.Customers, error) {
 	var customers models.Customers
 
 	if rows := config.DB.Preload("Nationalities").Find(&customers, id).RowsAffected; rows < 1 {
-		err := errors.New("Customer not found!")
+		err := errors.New("customer not found")
 		return customers, err
 	}
 	return customers, nil
@@ -37,7 +50,7 @@ func InsertCustomer(postBody models.CustomerPost) (interface{}, error) {
 
 	cstDOB, err := time.Parse("02/01/2006", postBody.CstDOB)
 	if err != nil {
-		e := errors.New("Failed to parse data!")
+		e := errors.New("failed to parse data")
 		return customers, e
 	}
 
@@ -56,7 +69,7 @@ func UpdateCustomer(id int, putBody models.CustomerUpdate) (interface{}, error) 
 
 	cstDOB, err := time.Parse("02/01/2006", putBody.CstDOB)
 	if err != nil {
-		e := errors.New("Failed to parse data!")
+		e := errors.New("failed to parse data")
 		return customers, e
 	}
 
