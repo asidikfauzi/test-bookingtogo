@@ -6,6 +6,12 @@ type Nationalities struct {
 	NationalityCode string `gorm:"type:char(2);not null;" json:"nationality_code"`
 }
 
+type NationalityResponse struct {
+	NationalityId   int    `json:"nationality_id"`
+	NationalityName string `json:"nationality_name"`
+	NationalityCode string `json:"nationality_code"`
+}
+
 type NationalityPost struct {
 	NationalityName string `json:"nationality_name" form:"nationality_name" validate:"required"`
 	NationalityCode string `json:"nationality_code" form:"nationality_code" validate:"required"`

@@ -12,6 +12,15 @@ type Customers struct {
 	Nationalities Nationalities `gorm:"foreignKey:NationalityId;references:NationalityId"`
 }
 
+type CustomersResponse struct {
+	CstId         int       `json:"cst_id"`
+	NationalityId int       `json:"nationality_id"`
+	CstName       string    `json:"cst_name"`
+	CstDOB        time.Time `json:"cst_dob"`
+	CstPhoneNum   string    `json:"cst_phone_num"`
+	CstEmail      string    `json:"cst_email"`
+}
+
 type CustomerPost struct {
 	NationalityId int    `json:"nationality_id" form:"nationality_id" validate:"required"`
 	CstName       string `json:"cst_name" form:"cst_name" validate:"required"`
