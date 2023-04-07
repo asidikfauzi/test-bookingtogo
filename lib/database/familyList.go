@@ -50,7 +50,7 @@ func GetFamilyListById(id int) (models.FamilyLists, error) {
 func InsertFamilyList(postBody models.FamilyListPost) (interface{}, error) {
 	var familyLists models.FamilyLists
 
-	flDOB, err := time.Parse("02/01/2006", postBody.FlDOB)
+	flDOB, err := time.Parse("2006-01-02", postBody.FlDOB)
 	if err != nil {
 		e := errors.New("failed to parse data")
 		return familyLists, e
@@ -68,7 +68,7 @@ func InsertFamilyList(postBody models.FamilyListPost) (interface{}, error) {
 func UpdateFamilyList(id int, putBody models.FamilyListUpdate) (interface{}, error) {
 	var familyLists models.FamilyLists
 
-	flDOB, err := time.Parse("02/01/2006", putBody.FlDOB)
+	flDOB, err := time.Parse("2006-01-02", putBody.FlDOB)
 	if err != nil {
 		e := errors.New("failed to parse data")
 		return familyLists, e

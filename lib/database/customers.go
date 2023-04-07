@@ -11,7 +11,14 @@ func GetCustomers(offset, limit int) ([]models.CustomersResponse, int64, error) 
 	var customers []models.Customers
 	var totalCount int64
 
-	if err := config.DB.Order("cst_name ASC").Offset(offset).Limit(limit).Find(&customers).Error; err != nil {
+	if err := config.DB.Table("customers").
+		Preload("Nationalities").
+		Select("customers.cst_id, customers.nationality_id, customers.cst_name, customers.cst_dob, customers.cst_phone_num, customers.cst_email, nationalities.nationality_name").
+		Joins("JOIN nationalities ON customers.nationality_id = nationalities.nationality_id").
+		Order("customers.cst_name ASC").
+		Offset(offset).
+		Limit(limit).
+		Find(&customers).Error; err != nil {
 		return nil, totalCount, err
 	}
 
@@ -21,18 +28,19 @@ func GetCustomers(offset, limit int) ([]models.CustomersResponse, int64, error) 
 
 	var response []models.CustomersResponse
 	for _, customer := range customers {
+		cstDOB := customer.CstDOB.Format("02-01-2006")
 		response = append(response, models.CustomersResponse{
-			CstId:         customer.CstId,
-			NationalityId: customer.CstId,
-			CstName:       customer.CstName,
-			CstPhoneNum:   customer.CstPhoneNum,
-			CstDOB:        customer.CstDOB,
-			CstEmail:      customer.CstEmail,
+			CstId:           customer.CstId,
+			NationalityId:   customer.NationalityId,
+			NationalityName: customer.Nationalities.NationalityName,
+			CstName:         customer.CstName,
+			CstPhoneNum:     customer.CstPhoneNum,
+			CstDOB:          cstDOB,
+			CstEmail:        customer.CstEmail,
 		})
 	}
 
 	return response, totalCount, nil
-
 }
 
 func GetCustomerById(id int) (models.Customers, error) {
@@ -48,7 +56,7 @@ func GetCustomerById(id int) (models.Customers, error) {
 func InsertCustomer(postBody models.CustomerPost) (interface{}, error) {
 	var customers models.Customers
 
-	cstDOB, err := time.Parse("02/01/2006", postBody.CstDOB)
+	cstDOB, err := time.Parse("2006-01-02", postBody.CstDOB)
 	if err != nil {
 		e := errors.New("failed to parse data")
 		return customers, e
@@ -67,7 +75,7 @@ func InsertCustomer(postBody models.CustomerPost) (interface{}, error) {
 func UpdateCustomer(id int, putBody models.CustomerUpdate) (interface{}, error) {
 	var customers models.Customers
 
-	cstDOB, err := time.Parse("02/01/2006", putBody.CstDOB)
+	cstDOB, err := time.Parse("2006-01-02", putBody.CstDOB)
 	if err != nil {
 		e := errors.New("failed to parse data")
 		return customers, e
