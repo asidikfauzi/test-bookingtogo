@@ -3,6 +3,7 @@ package routes
 import (
 	"fmt"
 	"github.com/gorilla/mux"
+	"log"
 	"net/http"
 	"test-bookingtogo/controllers"
 	"test-bookingtogo/lib/utils"
@@ -29,7 +30,19 @@ func NewRouter() {
 	customerRouter.HandleFunc("/{id}", controllers.DeleteCustomer).Methods("DELETE")
 	//--------end nationality group router
 
+	//--------start family list group router
+	familyListRouter := r.PathPrefix("/family-list").Subrouter()
+	familyListRouter.HandleFunc("", controllers.GetFamilyLists).Methods("GET")
+	familyListRouter.HandleFunc("/{id}", controllers.GetFamilyListById).Methods("GET")
+	familyListRouter.HandleFunc("", controllers.CreateFamilyList).Methods("POST")
+	familyListRouter.HandleFunc("/{id}", controllers.UpdateFamilyList).Methods("PUT")
+	familyListRouter.HandleFunc("/{id}", controllers.DeleteFamilyList).Methods("DELETE")
+	//--------end family list group router
+
 	// start server
 	fmt.Println("RUN", utils.GetEnv("PORT"))
-	http.ListenAndServe(":"+utils.GetEnv("PORT"), r)
+	err := http.ListenAndServe(":"+utils.GetEnv("PORT"), r)
+	if err != nil {
+		log.Fatal(err)
+	}
 }
