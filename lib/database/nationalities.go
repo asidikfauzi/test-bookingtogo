@@ -14,7 +14,7 @@ func GetNationalities(offset, limit int) ([]models.Nationalities, int64, error) 
 		return nationalities, totalCount, err
 	}
 
-	if err := config.DB.Model(&models.Nationalities{}).Count(&totalCount).Error; err != nil {
+	if err := config.DB.Model(&nationalities).Count(&totalCount).Error; err != nil {
 		return nationalities, totalCount, err
 	}
 	return nationalities, totalCount, nil
