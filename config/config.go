@@ -24,7 +24,9 @@ func InitDB() {
 		DSN: postgresCredentials,
 	}), &gorm.Config{})
 	fmt.Println("Server Success")
-	//InitMigrate()
+
+	InitMigrate()
+	InitSeed()
 }
 
 func InitMigrate() {
@@ -35,4 +37,19 @@ func InitMigrate() {
 	DB.Where("1 = 1").Delete(&models.Nationalities{})
 	DB.Where("1 = 1").Delete(&models.Customers{})
 	DB.Where("1 = 1").Delete(&models.FamilyLists{})
+}
+
+func InitSeed() error {
+
+	nationalities := []models.Nationalities{
+		{NationalityName: "Indonesia", NationalityCode: "62"},
+		{NationalityName: "America", NationalityCode: "01"},
+		{NationalityName: "Jamaica", NationalityCode: "03"},
+	}
+
+	for _, nationality := range nationalities {
+		DB.Create(&nationality)
+	}
+
+	return nil
 }
