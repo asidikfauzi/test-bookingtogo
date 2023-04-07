@@ -2,58 +2,90 @@ package database
 
 import (
 	"errors"
+	"gorm.io/gorm"
 	"test-bookingtogo/config"
 	"test-bookingtogo/models"
+	"time"
 )
 
-func GetFamiliLists(offset, limit int) ([]models.Nationalities, int64, error) {
-	var nationalities []models.Nationalities
+func GetFamilyLists(offset, limit int) ([]models.FamilyListsResponse, int64, error) {
+	var familyLists []models.FamilyLists
 	var totalCount int64
 
-	if err := config.DB.Order("nationality_name ASC").Offset(offset).Limit(limit).Find(&nationalities).Error; err != nil {
-		return nationalities, totalCount, err
+	if err := config.DB.Order("fl_name ASC").Offset(offset).Limit(limit).Find(&familyLists).Error; err != nil {
+		return nil, totalCount, err
 	}
 
-	if err := config.DB.Model(&nationalities).Count(&totalCount).Error; err != nil {
-		return nationalities, totalCount, err
+	if err := config.DB.Model(&familyLists).Count(&totalCount).Error; err != nil {
+		return nil, totalCount, err
 	}
-	return nationalities, totalCount, nil
+
+	var response []models.FamilyListsResponse
+	for _, family := range familyLists {
+		response = append(response, models.FamilyListsResponse{
+			FlId:       family.FlId,
+			CstId:      family.CstId,
+			FlRelation: family.FlRelation,
+			FlName:     family.FlName,
+			FlDOB:      family.FlDOB,
+		})
+	}
+
+	return response, totalCount, nil
 
 }
 
-func GetFamiliListById(id int) (models.Nationalities, error) {
-	var nationalities models.Nationalities
+func GetFamilyListById(id int) (models.FamilyLists, error) {
+	var familyLists models.FamilyLists
 
-	if rows := config.DB.Find(&nationalities, id).RowsAffected; rows < 1 {
-		err := errors.New("Nationality not found!")
-		return nationalities, err
+	if err := config.DB.Preload("Customers.Nationalities").First(&familyLists, id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return familyLists, errors.New("FamilyLists not found")
+		}
+		return familyLists, err
 	}
-	return nationalities, nil
+	return familyLists, nil
 }
 
-func InsertFamilyList(postBody models.NationalityPost) (interface{}, error) {
-	var nationality models.Nationalities
+func InsertFamilyList(postBody models.FamilyListPost) (interface{}, error) {
+	var familyLists models.FamilyLists
 
-	nationality.NationalityName = postBody.NationalityName
-	nationality.NationalityCode = postBody.NationalityCode
+	flDOB, err := time.Parse("02/01/2006", postBody.FlDOB)
+	if err != nil {
+		e := errors.New("failed to parse data")
+		return familyLists, e
+	}
 
-	err := config.DB.Create(&nationality).Error
-	return nationality, err
+	familyLists.CstId = postBody.CstId
+	familyLists.FlRelation = postBody.FlRelation
+	familyLists.FlDOB = flDOB
+	familyLists.FlName = postBody.FlName
+
+	errResult := config.DB.Create(&familyLists).Error
+	return postBody, errResult
 }
 
-func UpdateFamilyList(id int, putBody models.NationalityUpdate) (interface{}, error) {
-	var nationality models.Nationalities
+func UpdateFamilyList(id int, putBody models.FamilyListUpdate) (interface{}, error) {
+	var familyLists models.FamilyLists
 
-	nationality.NationalityName = putBody.NationalityName
-	nationality.NationalityCode = putBody.NationalityCode
+	flDOB, err := time.Parse("02/01/2006", putBody.FlDOB)
+	if err != nil {
+		e := errors.New("failed to parse data")
+		return familyLists, e
+	}
 
-	err := config.DB.Model(&nationality).Where("nationality_id=?", id).Updates(&nationality).Error
-	return putBody, err
+	familyLists.CstId = putBody.CstId
+	familyLists.FlRelation = putBody.FlRelation
+	familyLists.FlDOB = flDOB
+	familyLists.FlName = putBody.FlName
+
+	errResult := config.DB.Model(&familyLists).Where("fl_id=?", id).Updates(&familyLists).Error
+	return putBody, errResult
 }
 
 func DeleteFamilyList(id int) error {
-	var nationality models.Nationalities
-	result := config.DB.Delete(&nationality, id)
+	var familyLists models.FamilyLists
+	result := config.DB.Delete(&familyLists, id)
 	if result.Error != nil {
 		return result.Error
 	}
