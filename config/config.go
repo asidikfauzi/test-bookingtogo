@@ -24,9 +24,9 @@ func InitDB() {
 		DSN: postgresCredentials,
 	}), &gorm.Config{})
 	fmt.Println("Server Success")
-
-	InitMigrate()
-	InitSeed()
+	//
+	//InitMigrate()
+	//InitSeed()
 }
 
 func InitMigrate() {

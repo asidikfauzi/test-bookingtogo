@@ -12,7 +12,14 @@ func GetFamilyLists(offset, limit int) ([]models.FamilyListsResponse, int64, err
 	var familyLists []models.FamilyLists
 	var totalCount int64
 
-	if err := config.DB.Order("fl_name ASC").Offset(offset).Limit(limit).Find(&familyLists).Error; err != nil {
+	if err := config.DB.Table("family_lists").
+		Preload("Customers").
+		Select("family_lists.fl_id, family_lists.cst_id, family_lists.fl_relation, family_lists.fl_name, family_lists.fl_dob, customers.cst_name").
+		Joins("JOIN customers ON family_lists.cst_id = customers.cst_id").
+		Order("fl_name ASC").
+		Offset(offset).
+		Limit(limit).
+		Find(&familyLists).Error; err != nil {
 		return nil, totalCount, err
 	}
 
@@ -22,12 +29,14 @@ func GetFamilyLists(offset, limit int) ([]models.FamilyListsResponse, int64, err
 
 	var response []models.FamilyListsResponse
 	for _, family := range familyLists {
+		flDOB := family.FlDOB.Format("02-01-2006")
 		response = append(response, models.FamilyListsResponse{
 			FlId:       family.FlId,
 			CstId:      family.CstId,
+			CstName:    family.Customers.CstName,
 			FlRelation: family.FlRelation,
 			FlName:     family.FlName,
-			FlDOB:      family.FlDOB,
+			FlDOB:      flDOB,
 		})
 	}
 

@@ -8,15 +8,16 @@ type FamilyLists struct {
 	FlRelation string    `gorm:"type:varchar(50);not null;" json:"fl_relation"`
 	FlName     string    `gorm:"type:varchar(50);not null;" json:"fl_name"`
 	FlDOB      time.Time `gorm:"not null;" json:"fl_dob"`
-	Customers  Customers `gorm:"foreignKey:CstId;references:CstId"`
+	Customers  Customers `gorm:"foreignKey:CstId;references:CstId" json:"customer"`
 }
 
 type FamilyListsResponse struct {
-	FlId       int       `json:"fl_id"`
-	CstId      int       `json:"cst_id"`
-	FlRelation string    `json:"fl_relation"`
-	FlName     string    `json:"fl_name"`
-	FlDOB      time.Time `json:"fl_dob"`
+	FlId       int    `json:"fl_id"`
+	CstId      int    `json:"cst_id"`
+	CstName    string `json:"cst_name"`
+	FlRelation string `json:"fl_relation"`
+	FlName     string `json:"fl_name"`
+	FlDOB      string `json:"fl_dob"`
 }
 
 type FamilyListPost struct {
