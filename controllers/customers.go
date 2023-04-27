@@ -2,6 +2,7 @@ package controllers
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/go-playground/validator/v10"
 	"github.com/gorilla/mux"
 	"math"
@@ -99,6 +100,7 @@ func CreateCustomer(w http.ResponseWriter, r *http.Request) {
 	}
 
 	_, errGetNationality := database.GetNationalityById(postBody.NationalityId)
+	fmt.Println(errGetNationality)
 	if errGetNationality != nil {
 		utils.NotFound(w, errGetNationality.Error(), "Not Found")
 		return

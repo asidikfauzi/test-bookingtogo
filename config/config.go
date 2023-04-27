@@ -25,8 +25,8 @@ func InitDB() {
 	}), &gorm.Config{})
 	fmt.Println("Server Success")
 
-	InitMigrate()
-	InitSeed()
+	//InitMigrate()
+	//InitSeed()
 }
 
 func InitMigrate() {
